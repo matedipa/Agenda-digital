@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>712</width>
     <height>600</height>
    </rect>
   </property>
@@ -85,7 +85,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>712</width>
      <height>33</height>
     </rect>
    </property>
@@ -93,24 +93,7 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>pushButton_6</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>mostar_horario()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>297</x>
-     <y>151</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>105</x>
-     <y>116</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <slots>
   <slot>slot1()</slot>
   <slot>mostar_horario()</slot>

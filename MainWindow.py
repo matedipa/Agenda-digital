@@ -1,34 +1,112 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtCore import pyqtSlot
+from PySide6.QtWidgets import QApplication, QMainWindow, QDialog
+from PySide6.QtCore import Slot
 
-"""
-from Archivo convertido con pyside2-uic archivo.ui > interfaz.py
-import nombre de la clase del archivo convertido
-"""
-from interfaz import Ui_MainWindow
+# Importá tus archivos de interfaz generados con pyside6-uic
+from ui_principal import Ui_MainWindow  # Tu archivo principal real
+from ui_inicia_sesion import Ui_Form as Ui_IniciarSesion
+from ui_mostrar_horario import Ui_Form as Ui_MostrarHorario
+from ui_editar_horario import Ui_Form as Ui_EditarHorario
+from ui_agendar_tarea import Ui_Form as Ui_AgendarTarea
+from ui_agendar_material import Ui_Form as Ui_AgendarMaterial
 
-class MainWindow(QMainWindow):  #Clase MainWindow heredada de QMainWindow, que es una clase de PyQt para crear la ventana principal de la app.
-    def __init__(self): #constructor method. Se ejuecuta cuando la instancia de la clase es creada.
-        super().__init__() #llama al constructor de la clase QMainWindow, para inicializar las funcionalidades básicas de la ventana principal de la app.
-        self.ui = Ui_MainWindow() #crea una instancia de Ui_MainWindow class, la cual es la definición de la interfaz del usuario para la ventana principal.
-        self.ui.setupUi(self) #llama al método setupUi() de la instancia Ui_MainWindow, para setear los componenetes de la interfaz del usuario dentro de main window.
 
-if __name__ == "__main__": #checkea si el script está siendo ejecutado como el prog principal (no importado como un modulo).
-    app = QApplication(sys.argv)    # Crea un Qt widget, la cual va ser nuestra ventana.
-    window = MainWindow() #crea una intancia de MainWindow 
-    window.show()   # IMPORTANT!!!!! la ventanas estan ocultas por defecto.
-    sys.exit(app.exec_()) # Start the event loop.
+# -----------------------------
+# CLASES DE VENTANAS SECUNDARIAS
+# -----------------------------
 
-import sys
-import json
-from datetime import datetime, timedelta
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem
-
-class MainApp(QtWidgets.QMainWindow):
+class VentanaIniciarSesion(QDialog):
     def __init__(self):
         super().__init__()
-        uic.loadUi("interfaz.ui", self)
+        self.ui = Ui_IniciarSesion()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Iniciar Sesión")
 
-        
+
+class VentanaMostrarHorario(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_MostrarHorario()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Mostrar Horario")
+
+
+class VentanaEditarHorario(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_EditarHorario()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Editar Horario")
+
+
+class VentanaAgendarTarea(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_AgendarTarea()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Agendar Tarea")
+
+
+class VentanaAgendarLibros(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_AgendarMaterial()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Agendar Libros")
+
+
+# -----------------------------
+# CLASE PRINCIPAL
+# -----------------------------
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Agenda Digital")
+
+        # Conectar botones a funciones (ajustá los nombres a los de tu interfaz)
+        self.ui.pushButton_7.clicked.connect(self.abrir_iniciar_sesion)
+        self.ui.pushButton_6.clicked.connect(self.abrir_mostrar_horario)
+        self.ui.pushButton_4.clicked.connect(self.abrir_editar_horario)
+        self.ui.pushButton_3.clicked.connect(self.abrir_agendar_tareas)
+        self.ui.pushButton_5.clicked.connect(self.abrir_agendar_libros)
+
+    # -------------------------
+    # FUNCIONES DE APERTURA
+    # -------------------------
+    @Slot()
+    def abrir_iniciar_sesion(self):
+        ventana = VentanaIniciarSesion()
+        ventana.exec()
+
+    @Slot()
+    def abrir_mostrar_horario(self):
+        ventana = VentanaMostrarHorario()
+        ventana.exec()
+
+    @Slot()
+    def abrir_editar_horario(self):
+        ventana = VentanaEditarHorario()
+        ventana.exec()
+
+    @Slot()
+    def abrir_agendar_tareas(self):
+        ventana = VentanaAgendarTarea()
+        ventana.exec()
+
+    @Slot()
+    def abrir_agendar_libros(self):
+        ventana = VentanaAgendarLibros()
+        ventana.exec()
+
+
+# -----------------------------
+# PROGRAMA PRINCIPAL
+# -----------------------------
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
