@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QDialog
+import os
+import json
+from PySide6.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox, QLineEdit
 from PySide6.QtCore import Slot
 
 # Importá tus archivos de interfaz generados con pyside6-uic
@@ -21,6 +24,61 @@ class VentanaIniciarSesion(QDialog):
         self.ui = Ui_IniciarSesion()
         self.ui.setupUi(self)
         self.setWindowTitle("Iniciar Sesión")
+
+        # Archivo donde se guardarán los usuarios
+        self.archivo_usuarios = os.path.join(os.path.dirname(__file__), "usuarios.json")
+        # Si no existe el archivo, lo creamos vacío
+        if not os.path.exists(self.archivo_usuarios):
+            with open(self.archivo_usuarios, "w") as f:
+                json.dump([], f)
+
+        # Ocultar la contraseña
+        self.ui.lineEdit_3.setEchoMode(QLineEdit.EchoMode.Password)
+
+        # Conectar el botón "Guardar"
+        self.ui.pushButton.clicked.connect(self.guardar_usuario)
+
+    def guardar_usuario(self):
+        nombre = self.ui.lineEdit.text().strip()
+        gmail = self.ui.lineEdit_2.text().strip()
+        contrasena = self.ui.lineEdit_3.text().strip()
+
+        if not nombre or not gmail or not contrasena:
+            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios.")
+            return
+
+        # Leer usuarios existentes
+        with open(self.archivo_usuarios, "r") as f:
+            usuarios = json.load(f)
+
+        # Verificar si ya existe el nombre o la contraseña
+        for usuario in usuarios:
+            if usuario["nombre"] == nombre:
+                QMessageBox.warning(self, "Error", "Ya existe un usuario con ese nombre.")
+                return
+            if usuario["contrasena"] == contrasena:
+                QMessageBox.warning(self, "Error", "Esa contraseña ya está en uso.")
+                return
+
+        # Agregar nuevo usuario
+        nuevo_usuario = {
+            "nombre": nombre,
+            "gmail": gmail,
+            "contrasena": contrasena
+        }
+        usuarios.append(nuevo_usuario)
+
+        # Guardar los usuarios en el archivo
+        with open(self.archivo_usuarios, "w") as f:
+            json.dump(usuarios, f, indent=4)
+
+        QMessageBox.information(self, "Éxito", f"Usuario guardado correctamente.\nRuta: {os.path.abspath(self.archivo_usuarios)}")
+
+
+        # Limpiar campos
+        self.ui.lineEdit.clear()
+        self.ui.lineEdit_2.clear()
+        self.ui.lineEdit_3.clear()
 
 
 class VentanaMostrarHorario(QDialog):
@@ -66,7 +124,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.setWindowTitle("Agenda Digital")
 
-        # Conectar botones a funciones (ajustá los nombres a los de tu interfaz)
+        # Conectar botones a funciones
         self.ui.pushButton_7.clicked.connect(self.abrir_iniciar_sesion)
         self.ui.pushButton_6.clicked.connect(self.abrir_mostrar_horario)
         self.ui.pushButton_4.clicked.connect(self.abrir_editar_horario)
