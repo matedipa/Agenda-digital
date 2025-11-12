@@ -5,7 +5,8 @@ import os
 import json
 from PySide6.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox, 
                              QLineEdit, QTableWidget, QTableWidgetItem, QVBoxLayout)
-from PySide6.QtCore import Slot, QTime, QRect
+# MODIFICADO: Añadido QDate
+from PySide6.QtCore import Slot, QTime, QRect, QDate
 
 # Importá tus archivos de interfaz generados con pyside6-uic
 from ui_principal import Ui_MainWindow  # Tu archivo principal real
@@ -302,7 +303,6 @@ class VentanaEditarHorario(QDialog):
                                 "Presione 'Guardar' para aplicar todos los cambios permanentemente.")
 
 
-
 class VentanaAgendarTarea(QDialog):
     def __init__(self):
         super().__init__()
@@ -310,13 +310,219 @@ class VentanaAgendarTarea(QDialog):
         self.ui.setupUi(self)
         self.setWindowTitle("Agendar Tarea")
 
+        # --- Configuración de la lógica ---
+        self.archivo_horario = os.path.join(os.path.dirname(__file__), "horario.json")
+        self.archivo_tareas = os.path.join(os.path.dirname(__file__), "tareas.json")
 
+        self.materias = []
+        self.tareas_pendientes = [] # Tareas en memoria
+
+        # Cargar datos existentes
+        self.cargar_materias()
+        self.cargar_tareas()
+
+        # Configurar widgets
+        self.ui.comboBox_2.setEditable(True) # Permitir escribir materias nuevas
+        self.ui.dateEdit.setDate(QDate.currentDate()) # Poner fecha actual por defecto
+        self.ui.dateEdit.setCalendarPopup(True) # Mejor UI para el calendario
+
+        # Conectar botones
+        self.ui.pushButton_3.clicked.connect(self.agregar_tarea) # Botón "Agregar"
+        self.ui.pushButton_2.clicked.connect(self.guardar_y_cerrar) # Botón "Guardar"
+
+    def cargar_materias(self):
+        """Carga la lista de materias desde horario.json"""
+        if not os.path.exists(self.archivo_horario):
+            return # No hay materias para cargar
+
+        try:
+            with open(self.archivo_horario, "r") as f:
+                data = json.load(f)
+                self.materias = data.get("materias", [])
+        except json.JSONDecodeError:
+            self.materias = []
+
+        # Poblar el combobox
+        self.ui.comboBox_2.clear()
+        self.ui.comboBox_2.addItems(self.materias)
+
+    def cargar_tareas(self):
+        """Carga las tareas existentes desde tareas.json a la memoria."""
+        if not os.path.exists(self.archivo_tareas):
+            # Si no existe, lo creamos vacío
+            try:
+                with open(self.archivo_tareas, "w") as f:
+                    json.dump([], f, indent=4)
+                self.tareas_pendientes = []
+            except IOError as e:
+                QMessageBox.critical(self, "Error", f"No se pudo crear tareas.json: {e}")
+            return
+
+        # Si existe, lo leemos
+        try:
+            with open(self.archivo_tareas, "r") as f:
+                self.tareas_pendientes = json.load(f)
+        except json.JSONDecodeError:
+            QMessageBox.warning(self, "Error de Carga", "El archivo tareas.json está corrupto. Se creará uno nuevo al guardar.")
+            self.tareas_pendientes = []
+
+    def agregar_tarea(self):
+        """Añade la tarea a la lista en memoria (self.tareas_pendientes)"""
+        
+        # 1. Obtener datos de la UI
+        materia = self.ui.comboBox_2.currentText().strip()
+        descripcion = self.ui.textEdit.toPlainText().strip()
+        fecha_entrega_qdate = self.ui.dateEdit.date()
+        fecha_entrega_str = fecha_entrega_qdate.toString("yyyy-MM-dd") # Formato ISO
+
+        # 2. Validar
+        if not materia or not descripcion:
+            QMessageBox.warning(self, "Datos incompletos", "Debe ingresar una materia y una descripción.")
+            return
+
+        # 3. Crear el diccionario de la tarea
+        # Añadimos 'completada' por defecto
+        nueva_tarea = {
+            "materia": materia,
+            "descripcion": descripcion,
+            "fecha_entrega": fecha_entrega_str,
+            "completada": False 
+        }
+
+        # 4. Añadir a la lista en memoria
+        self.tareas_pendientes.append(nueva_tarea)
+
+        # 5. Notificar y limpiar campos
+        QMessageBox.information(self, "Agregado", 
+                                f"Tarea para '{materia}' agregada.\n\n"
+                                "Presione 'Guardar' para aplicar todos los cambios permanentemente.")
+        
+        # Limpiar para la siguiente entrada
+        self.ui.textEdit.clear()
+        self.ui.dateEdit.setDate(QDate.currentDate())
+        self.ui.comboBox_2.setFocus()
+
+
+    def guardar_y_cerrar(self):
+        """Guarda la lista completa de tareas en tareas.json y cierra."""
+        try:
+            with open(self.archivo_tareas, "w") as f:
+                json.dump(self.tareas_pendientes, f, indent=4)
+        except IOError as e:
+            QMessageBox.critical(self, "Error al Guardar", f"No se pudo escribir en el archivo tareas.json:\n{e}")
+            return # No cerrar si no se pudo guardar
+
+        QMessageBox.information(self, "Guardado", "Tareas guardadas correctamente.")
+        self.accept() # Cierra el QDialog
+
+
+# -----------------------------------------------------------------
+# --- CLASE MODIFICADA: VentanaAgendarLibros ---
+# -----------------------------------------------------------------
 class VentanaAgendarLibros(QDialog):
     def __init__(self):
         super().__init__()
         self.ui = Ui_AgendarMaterial()
         self.ui.setupUi(self)
-        self.setWindowTitle("Agendar Libros")
+        # El título lo toma del .ui ("Agregar Material")
+        self.setWindowTitle("Agendar Material") 
+
+        # --- Configuración de la lógica ---
+        self.archivo_horario = os.path.join(os.path.dirname(__file__), "horario.json")
+        self.archivo_materiales = os.path.join(os.path.dirname(__file__), "materiales.json")
+
+        self.materias = []
+        self.lista_materiales = [] # Lista en memoria
+
+        # Cargar datos
+        self.cargar_materias()
+        self.cargar_materiales()
+
+        # Configurar widgets
+        self.ui.comboBox_2.setEditable(True)
+
+        # Conectar botones (según el .ui)
+        self.ui.pushButton.clicked.connect(self.agregar_material) # "Agregar"
+        self.ui.pushButton_2.clicked.connect(self.guardar_y_cerrar) # "Guardar"
+
+    def cargar_materias(self):
+        """Carga la lista de materias desde horario.json"""
+        if not os.path.exists(self.archivo_horario):
+            return
+
+        try:
+            with open(self.archivo_horario, "r") as f:
+                data = json.load(f)
+                self.materias = data.get("materias", [])
+        except json.JSONDecodeError:
+            self.materias = []
+        
+        # Poblar el combobox
+        self.ui.comboBox_2.clear()
+        self.ui.comboBox_2.addItems(self.materias)
+
+    def cargar_materiales(self):
+        """Carga los materiales existentes desde materiales.json a la memoria."""
+        if not os.path.exists(self.archivo_materiales):
+            # Si no existe, lo creamos vacío
+            try:
+                with open(self.archivo_materiales, "w") as f:
+                    json.dump([], f, indent=4)
+                self.lista_materiales = []
+            except IOError as e:
+                QMessageBox.critical(self, "Error", f"No se pudo crear materiales.json: {e}")
+            return
+
+        # Si existe, lo leemos
+        try:
+            with open(self.archivo_materiales, "r") as f:
+                self.lista_materiales = json.load(f)
+        except json.JSONDecodeError:
+            QMessageBox.warning(self, "Error de Carga", "El archivo materiales.json está corrupto. Se creará uno nuevo al guardar.")
+            self.lista_materiales = []
+
+    def agregar_material(self):
+        """Añade el material a la lista en memoria (self.lista_materiales)"""
+        
+        # 1. Obtener datos de la UI
+        materia = self.ui.comboBox_2.currentText().strip()
+        material_desc = self.ui.lineEdit.text().strip()
+
+        # 2. Validar
+        if not materia or not material_desc:
+            QMessageBox.warning(self, "Datos incompletos", "Debe ingresar una materia y el material necesario.")
+            return
+
+        # 3. Crear el diccionario del material
+        nuevo_material = {
+            "materia": materia,
+            "material": material_desc,
+            "conseguido": False # Añadimos un estado por defecto
+        }
+
+        # 4. Añadir a la lista en memoria
+        self.lista_materiales.append(nuevo_material)
+
+        # 5. Notificar y limpiar campos
+        QMessageBox.information(self, "Agregado", 
+                                f"Material '{material_desc}' agregado para '{materia}'.\n\n"
+                                "Presione 'Guardar' para aplicar todos los cambios.")
+        
+        self.ui.lineEdit.clear()
+        self.ui.comboBox_2.setFocus()
+
+
+    def guardar_y_cerrar(self):
+        """Guarda la lista completa de materiales en materiales.json y cierra."""
+        try:
+            with open(self.archivo_materiales, "w") as f:
+                json.dump(self.lista_materiales, f, indent=4)
+        except IOError as e:
+            QMessageBox.critical(self, "Error al Guardar", f"No se pudo escribir en el archivo materiales.json:\n{e}")
+            return # No cerrar si no se pudo guardar
+
+        QMessageBox.information(self, "Guardado", "Materiales guardados correctamente.")
+        self.accept() # Cierra el QDialog
 
 
 # -----------------------------

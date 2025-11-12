@@ -31,55 +31,14 @@
     <enum>Qt::LayoutDirection::LeftToRight</enum>
    </property>
    <property name="text">
-    <string>Agregar Material</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>90</y>
-     <width>101</width>
-     <height>43</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>9</pointsize>
-    </font>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LayoutDirection::LeftToRight</enum>
-   </property>
-   <property name="text">
-    <string>Ingresar Materia:</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="comboBox_2">
-   <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>100</y>
-     <width>111</width>
-     <height>24</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="lineEdit">
-   <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>140</y>
-     <width>113</width>
-     <height>21</height>
-    </rect>
+    <string>Registrarse</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>130</y>
+     <y>50</y>
      <width>111</width>
      <height>43</height>
     </rect>
@@ -93,33 +52,86 @@
     <enum>Qt::LayoutDirection::LeftToRight</enum>
    </property>
    <property name="text">
-    <string>Material Necesario:</string>
+    <string>Seleccionar Usuario:</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QComboBox" name="comboBox">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>190</y>
-     <width>79</width>
+     <x>160</x>
+     <y>60</y>
+     <width>80</width>
      <height>24</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string/>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string/>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string/>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string/>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string/>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>120</y>
+     <width>111</width>
+     <height>43</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>9</pointsize>
+    </font>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LayoutDirection::LeftToRight</enum>
+   </property>
    <property name="text">
-    <string>Agregar</string>
+    <string>Contraseña:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>130</y>
+     <width>113</width>
+     <height>21</height>
+    </rect>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_2">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>240</y>
+     <x>160</x>
+     <y>200</y>
      <width>79</width>
      <height>24</height>
     </rect>
    </property>
    <property name="text">
-    <string>Guardar</string>
+    <string>Continuar</string>
    </property>
   </widget>
  </widget>

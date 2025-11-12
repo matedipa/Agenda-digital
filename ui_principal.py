@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_windowGoJPOP.ui'
+## Form generated from reading UI file 'main_windowaARnso.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.3
 ##
@@ -40,6 +40,9 @@ class Ui_MainWindow(object):
         self.pushButton_7 = QPushButton(self.centralwidget)
         self.pushButton_7.setObjectName(u"pushButton_7")
         self.pushButton_7.setGeometry(QRect(280, 70, 151, 41))
+        self.pushButton_8 = QPushButton(self.centralwidget)
+        self.pushButton_8.setObjectName(u"pushButton_8")
+        self.pushButton_8.setGeometry(QRect(280, 10, 151, 41))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -61,5 +64,6 @@ class Ui_MainWindow(object):
         self.pushButton_5.setText(QCoreApplication.translate("MainWindow", u"Agendar Libros", None))
         self.pushButton_6.setText(QCoreApplication.translate("MainWindow", u"Mostrar Horario", None))
         self.pushButton_7.setText(QCoreApplication.translate("MainWindow", u"Iniciar Sesion", None))
+        self.pushButton_8.setText(QCoreApplication.translate("MainWindow", u"Registrarse", None))
     # retranslateUi
 
