@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 import sys
 import os
 import json
@@ -27,6 +28,7 @@ class VentanaIniciarSesion(QDialog):
 
         # Archivo donde se guardarán los usuarios
         self.archivo_usuarios = os.path.join(os.path.dirname(__file__), "usuarios.json")
+
         # Si no existe el archivo, lo creamos vacío
         if not os.path.exists(self.archivo_usuarios):
             with open(self.archivo_usuarios, "w") as f:
@@ -51,13 +53,13 @@ class VentanaIniciarSesion(QDialog):
         with open(self.archivo_usuarios, "r") as f:
             usuarios = json.load(f)
 
-        # Verificar si ya existe el nombre o la contraseña
+        # Verificar si ya existe el nombre o el gmail
         for usuario in usuarios:
             if usuario["nombre"] == nombre:
                 QMessageBox.warning(self, "Error", "Ya existe un usuario con ese nombre.")
                 return
-            if usuario["contrasena"] == contrasena:
-                QMessageBox.warning(self, "Error", "Esa contraseña ya está en uso.")
+            if usuario["gmail"] == gmail:
+                QMessageBox.warning(self, "Error", "Ya existe un usuario con ese Gmail.")
                 return
 
         # Agregar nuevo usuario
@@ -74,13 +76,10 @@ class VentanaIniciarSesion(QDialog):
 
         QMessageBox.information(self, "Éxito", f"Usuario guardado correctamente.\nRuta: {os.path.abspath(self.archivo_usuarios)}")
 
-
         # Limpiar campos
         self.ui.lineEdit.clear()
         self.ui.lineEdit_2.clear()
         self.ui.lineEdit_3.clear()
-
-
 class VentanaMostrarHorario(QDialog):
     def __init__(self):
         super().__init__()
