@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'edicion_horariomsmWpI.ui'
+## Form generated from reading UI file 'edicion_horarioxprjuI.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.3
 ##
@@ -40,14 +40,14 @@ class Ui_Form(object):
         self.comboBox.setGeometry(QRect(130, 50, 80, 24))
         self.label_2 = QLabel(Form)
         self.label_2.setObjectName(u"label_2")
-        self.label_2.setGeometry(QRect(0, 80, 382, 43))
+        self.label_2.setGeometry(QRect(0, 80, 101, 43))
         font1 = QFont()
         font1.setPointSize(9)
         self.label_2.setFont(font1)
         self.label_2.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.label_3 = QLabel(Form)
         self.label_3.setObjectName(u"label_3")
-        self.label_3.setGeometry(QRect(0, 40, 382, 43))
+        self.label_3.setGeometry(QRect(0, 40, 91, 43))
         self.label_3.setFont(font1)
         self.label_3.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.timeEdit = QTimeEdit(Form)
@@ -55,7 +55,7 @@ class Ui_Form(object):
         self.timeEdit.setGeometry(QRect(120, 130, 118, 23))
         self.label_4 = QLabel(Form)
         self.label_4.setObjectName(u"label_4")
-        self.label_4.setGeometry(QRect(0, 120, 382, 43))
+        self.label_4.setGeometry(QRect(0, 120, 111, 43))
         self.label_4.setFont(font1)
         self.label_4.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.timeEdit_2 = QTimeEdit(Form)
@@ -63,7 +63,7 @@ class Ui_Form(object):
         self.timeEdit_2.setGeometry(QRect(120, 170, 118, 23))
         self.label_5 = QLabel(Form)
         self.label_5.setObjectName(u"label_5")
-        self.label_5.setGeometry(QRect(0, 160, 382, 43))
+        self.label_5.setGeometry(QRect(0, 160, 101, 43))
         self.label_5.setFont(font1)
         self.label_5.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.pushButton = QPushButton(Form)

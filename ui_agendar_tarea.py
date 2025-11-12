@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'agendar_tareavxlJKQ.ui'
+## Form generated from reading UI file 'agendar_tareaBiKrvZ.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.3
 ##
@@ -35,7 +35,7 @@ class Ui_Form(object):
         self.comboBox_2.setGeometry(QRect(130, 60, 111, 24))
         self.label_2 = QLabel(Form)
         self.label_2.setObjectName(u"label_2")
-        self.label_2.setGeometry(QRect(0, 50, 382, 43))
+        self.label_2.setGeometry(QRect(0, 50, 121, 43))
         font1 = QFont()
         font1.setPointSize(9)
         self.label_2.setFont(font1)
@@ -45,7 +45,7 @@ class Ui_Form(object):
         self.textEdit.setGeometry(QRect(130, 90, 111, 64))
         self.label_3 = QLabel(Form)
         self.label_3.setObjectName(u"label_3")
-        self.label_3.setGeometry(QRect(0, 80, 382, 43))
+        self.label_3.setGeometry(QRect(0, 80, 121, 43))
         self.label_3.setFont(font1)
         self.label_3.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.dateEdit = QDateEdit(Form)
@@ -53,7 +53,7 @@ class Ui_Form(object):
         self.dateEdit.setGeometry(QRect(130, 160, 116, 23))
         self.label_4 = QLabel(Form)
         self.label_4.setObjectName(u"label_4")
-        self.label_4.setGeometry(QRect(0, 150, 382, 43))
+        self.label_4.setGeometry(QRect(0, 150, 121, 43))
         self.label_4.setFont(font1)
         self.label_4.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.pushButton_3 = QPushButton(Form)
