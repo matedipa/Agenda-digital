@@ -1,3 +1,18 @@
 [
-
+    {
+        "nombre": "renzo",
+        "gmail": "renzoaradas12",
+        "contrasena": "1234",
+        "materiales": [
+            
+        ],
+        "horarios": [{}],
+        "tareas": [
+        {"materia": "historia",
+        "descripcion": "evaluacion de antigua grecia",
+        "fecha_entrega": "2025-11-19",
+        "completada": false}
+    ]
+    }
+    
 ]

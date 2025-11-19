@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime
+from datetime import date, timedelta
 import sys
 import os
 import json
@@ -15,11 +15,80 @@ from ui_mostrar_horario import Ui_Form as Ui_MostrarHorario
 from ui_editar_horario import Ui_Form as Ui_EditarHorario
 from ui_agendar_tarea import Ui_Form as Ui_AgendarTarea
 from ui_agendar_material import Ui_Form as Ui_AgendarMaterial
+from ui_registrarse import Ui_Form as Ui_Registrarse
 
 
 # -----------------------------
 # CLASES DE VENTANAS SECUNDARIAS
 # -----------------------------
+class VentanaRegistrarse(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_Registrarse()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Registrarse")
+
+        self.archivo_usuarios = os.path.join(os.path.dirname(__file__), "usuarios.json")
+
+        # Cargar usuarios en el combo
+        self.cargar_usuarios()
+
+        # La contraseña ingresada se oculta
+        self.ui.lineEdit.setEchoMode(QLineEdit.EchoMode.Password)
+
+        # Botón registrar
+        self.ui.pushButton_2.clicked.connect(self.verificar_usuario)
+        # Variable que dirá si el usuario inició sesión
+        self.usuario_actual = None
+
+    def cargar_usuarios(self):
+        try:
+            with open("usuarios.json", "r", encoding="utf-8") as f:
+                self.usuarios = json.load(f)
+        except:
+            self.usuarios = []
+
+    # Limpiar usuarios vacíos o corruptos
+        usuarios_validos = []
+        for u in self.usuarios:
+            if isinstance(u, dict) and "nombre" in u:
+                usuarios_validos.append(u)
+
+        self.usuarios = usuarios_validos
+
+    # Llenar el combo solo con los que tengan usuario
+        self.ui.comboBox.clear()
+        for u in self.usuarios:
+            self.ui.comboBox.addItem(u["nombre"])
+
+    def verificar_usuario(self):
+        nombre = self.ui.comboBox.currentText().strip()
+        contrasena_ingresada = self.ui.lineEdit.text().strip()
+
+        if not contrasena_ingresada:
+            QMessageBox.warning(self, "Error", "Ingrese la contraseña.")
+            return
+
+        # Cargar usuarios
+        try:
+            with open(self.archivo_usuarios, "r") as f:
+                usuarios = json.load(f)
+        except:
+            usuarios = []
+
+        for u in usuarios:
+            if u["nombre"] == nombre:
+                if u["contrasena"] == contrasena_ingresada:
+                    self.usuario_actual = u  # Guardamos los datos del usuario
+                    QMessageBox.information(self, "Bienvenido", f"Sesión iniciada como {nombre}.")
+                    self.accept()
+                    return
+                else:
+                    QMessageBox.warning(self, "Error", "Contraseña incorrecta.")
+                    return
+
+        QMessageBox.warning(self, "Error", "El usuario no existe.")
+
 
 class VentanaIniciarSesion(QDialog):
     def __init__(self):
@@ -87,48 +156,45 @@ class VentanaIniciarSesion(QDialog):
         self.ui.lineEdit_3.clear()
 
 class VentanaMostrarHorario(QDialog):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent_window = parent
         self.ui = Ui_MostrarHorario()
         self.ui.setupUi(self)
         self.setWindowTitle("Mostrar Horario")
         self.setMinimumSize(400, 300)
 
-        # --- Lógica de la tabla ---
-        # Como el UI no tiene una tabla, la creamos aquí
-        # Asumimos que el Ui_MostrarHorario usa setGeometry
+        # Crear tabla si el UI no tiene
         self.tableWidget = QTableWidget(self)
-        # Posicionamos la tabla debajo del título (label)
-        self.tableWidget.setGeometry(QRect(10, 50, 380, 240)) 
+        self.tableWidget.setGeometry(QRect(10, 50, 380, 240))
         self.tableWidget.setColumnCount(4)
         self.tableWidget.setHorizontalHeaderLabels(["Día", "Materia", "Inicio", "Fin"])
         self.tableWidget.setSortingEnabled(True)
 
-        self.archivo_horario = os.path.join(os.path.dirname(__file__), "horario.json")
         self.cargar_y_mostrar_horario()
 
     def cargar_y_mostrar_horario(self):
-        horario = []
-        if os.path.exists(self.archivo_horario):
-            try:
-                with open(self.archivo_horario, "r") as f:
-                    data = json.load(f)
-                    horario = data.get("horario", [])
-            except json.JSONDecodeError:
-                horario = []
+        if not self.parent_window or not self.parent_window.usuario_actual:
+            return
+
+        usuario = self.parent_window.cargar_datos_usuario()
+        if not usuario:
+            return
+
+        horario = usuario.get("horarios", [])
 
         self.tableWidget.setRowCount(len(horario))
-        
-        # Ordenar por día y luego por hora de inicio
+
+        # Ordenar por día y hora de inicio
         dias_orden = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"]
         try:
             horario_ordenado = sorted(
-                horario, 
+                horario,
                 key=lambda x: (dias_orden.index(x["dia"]), QTime.fromString(x["inicio"], "HH:mm"))
             )
         except ValueError:
-            horario_ordenado = horario # Fallback si hay un día no esperado
-            
+            horario_ordenado = horario
+
         for row, entrada in enumerate(horario_ordenado):
             self.tableWidget.setItem(row, 0, QTableWidgetItem(entrada["dia"]))
             self.tableWidget.setItem(row, 1, QTableWidgetItem(entrada["materia"]))
@@ -136,7 +202,6 @@ class VentanaMostrarHorario(QDialog):
             self.tableWidget.setItem(row, 3, QTableWidgetItem(entrada["fin"]))
 
         self.tableWidget.resizeColumnsToContents()
-
 
 class VentanaEditarHorario(QDialog):
     def __init__(self):
@@ -206,17 +271,11 @@ class VentanaEditarHorario(QDialog):
         self.ui.comboBox_2.addItems(self.materias)
 
     def guardar_datos_en_archivo(self):
-        """Escribe los datos en memoria (materias y horario) al archivo JSON."""
-        data = {
-            "materias": sorted(list(set(self.materias))), # Ordena y elimina duplicados
-            "horario": self.horario
-        }
-        try:
-            with open(self.archivo_horario, "w") as f:
-                json.dump(data, f, indent=4)
-        except IOError as e:
-            QMessageBox.critical(self, "Error al Guardar", f"No se pudo escribir en el archivo horario.json:\n{e}")
-
+        usuario = self.parent().cargar_datos_usuario()
+        usuario["horarios"] = self.horario
+        usuario["materias"] = self.materias
+        self.parent().guardar_datos_usuario(usuario)
+    
     def guardar_y_cerrar(self):
         """Guarda los cambios pendientes en el archivo y cierra la ventana."""
         self.guardar_datos_en_archivo()
@@ -304,116 +363,79 @@ class VentanaEditarHorario(QDialog):
 
 
 class VentanaAgendarTarea(QDialog):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent_window = parent
         self.ui = Ui_AgendarTarea()
         self.ui.setupUi(self)
         self.setWindowTitle("Agendar Tarea")
 
-        # --- Configuración de la lógica ---
-        self.archivo_horario = os.path.join(os.path.dirname(__file__), "horario.json")
-        self.archivo_tareas = os.path.join(os.path.dirname(__file__), "tareas.json")
-
         self.materias = []
-        self.tareas_pendientes = [] # Tareas en memoria
+        self.tareas_pendientes = []
 
-        # Cargar datos existentes
+        # Cargar datos
         self.cargar_materias()
         self.cargar_tareas()
 
         # Configurar widgets
-        self.ui.comboBox_2.setEditable(True) # Permitir escribir materias nuevas
-        self.ui.dateEdit.setDate(QDate.currentDate()) # Poner fecha actual por defecto
-        self.ui.dateEdit.setCalendarPopup(True) # Mejor UI para el calendario
+        self.ui.comboBox_2.setEditable(True)
+        self.ui.dateEdit.setDate(QDate.currentDate())
+        self.ui.dateEdit.setCalendarPopup(True)
 
         # Conectar botones
-        self.ui.pushButton_3.clicked.connect(self.agregar_tarea) # Botón "Agregar"
-        self.ui.pushButton_2.clicked.connect(self.guardar_y_cerrar) # Botón "Guardar"
+        self.ui.pushButton_3.clicked.connect(self.agregar_tarea)
+        self.ui.pushButton_2.clicked.connect(self.guardar_y_cerrar)
 
     def cargar_materias(self):
-        """Carga la lista de materias desde horario.json"""
-        if not os.path.exists(self.archivo_horario):
-            return # No hay materias para cargar
+        if not self.parent_window or not self.parent_window.usuario_actual:
+            return
+        usuario = self.parent_window.cargar_datos_usuario()
+        if usuario:
+            self.materias = [h["materia"] for h in usuario.get("horarios", [])]
 
-        try:
-            with open(self.archivo_horario, "r") as f:
-                data = json.load(f)
-                self.materias = data.get("materias", [])
-        except json.JSONDecodeError:
-            self.materias = []
-
-        # Poblar el combobox
         self.ui.comboBox_2.clear()
-        self.ui.comboBox_2.addItems(self.materias)
+        self.ui.comboBox_2.addItems(sorted(list(set(self.materias))))
 
     def cargar_tareas(self):
-        """Carga las tareas existentes desde tareas.json a la memoria."""
-        if not os.path.exists(self.archivo_tareas):
-            # Si no existe, lo creamos vacío
-            try:
-                with open(self.archivo_tareas, "w") as f:
-                    json.dump([], f, indent=4)
-                self.tareas_pendientes = []
-            except IOError as e:
-                QMessageBox.critical(self, "Error", f"No se pudo crear tareas.json: {e}")
+        if not self.parent_window or not self.parent_window.usuario_actual:
             return
-
-        # Si existe, lo leemos
-        try:
-            with open(self.archivo_tareas, "r") as f:
-                self.tareas_pendientes = json.load(f)
-        except json.JSONDecodeError:
-            QMessageBox.warning(self, "Error de Carga", "El archivo tareas.json está corrupto. Se creará uno nuevo al guardar.")
-            self.tareas_pendientes = []
+        usuario = self.parent_window.cargar_datos_usuario()
+        if usuario:
+            self.tareas_pendientes = usuario.get("tareas", [])
 
     def agregar_tarea(self):
-        """Añade la tarea a la lista en memoria (self.tareas_pendientes)"""
-        
-        # 1. Obtener datos de la UI
         materia = self.ui.comboBox_2.currentText().strip()
         descripcion = self.ui.textEdit.toPlainText().strip()
         fecha_entrega_qdate = self.ui.dateEdit.date()
-        fecha_entrega_str = fecha_entrega_qdate.toString("yyyy-MM-dd") # Formato ISO
+        fecha_entrega_str = fecha_entrega_qdate.toString("yyyy-MM-dd")
 
-        # 2. Validar
         if not materia or not descripcion:
             QMessageBox.warning(self, "Datos incompletos", "Debe ingresar una materia y una descripción.")
             return
 
-        # 3. Crear el diccionario de la tarea
-        # Añadimos 'completada' por defecto
         nueva_tarea = {
             "materia": materia,
             "descripcion": descripcion,
             "fecha_entrega": fecha_entrega_str,
-            "completada": False 
+            "completada": False
         }
 
-        # 4. Añadir a la lista en memoria
         self.tareas_pendientes.append(nueva_tarea)
-
-        # 5. Notificar y limpiar campos
-        QMessageBox.information(self, "Agregado", 
-                                f"Tarea para '{materia}' agregada.\n\n"
-                                "Presione 'Guardar' para aplicar todos los cambios permanentemente.")
-        
-        # Limpiar para la siguiente entrada
+        QMessageBox.information(self, "Agregado", "Tarea agregada. Presione 'Guardar' para confirmar.")
         self.ui.textEdit.clear()
         self.ui.dateEdit.setDate(QDate.currentDate())
         self.ui.comboBox_2.setFocus()
 
-
     def guardar_y_cerrar(self):
-        """Guarda la lista completa de tareas en tareas.json y cierra."""
-        try:
-            with open(self.archivo_tareas, "w") as f:
-                json.dump(self.tareas_pendientes, f, indent=4)
-        except IOError as e:
-            QMessageBox.critical(self, "Error al Guardar", f"No se pudo escribir en el archivo tareas.json:\n{e}")
-            return # No cerrar si no se pudo guardar
+        if not self.parent_window or not self.parent_window.usuario_actual:
+            return
+        usuario = self.parent_window.cargar_datos_usuario()
+        if usuario:
+            usuario["tareas"] = self.tareas_pendientes
+            self.parent_window.guardar_datos_usuario(usuario)
 
         QMessageBox.information(self, "Guardado", "Tareas guardadas correctamente.")
-        self.accept() # Cierra el QDialog
+        self.accept()
 
 
 # -----------------------------------------------------------------
@@ -462,24 +484,11 @@ class VentanaAgendarLibros(QDialog):
         self.ui.comboBox_2.addItems(self.materias)
 
     def cargar_materiales(self):
-        """Carga los materiales existentes desde materiales.json a la memoria."""
-        if not os.path.exists(self.archivo_materiales):
-            # Si no existe, lo creamos vacío
-            try:
-                with open(self.archivo_materiales, "w") as f:
-                    json.dump([], f, indent=4)
-                self.lista_materiales = []
-            except IOError as e:
-                QMessageBox.critical(self, "Error", f"No se pudo crear materiales.json: {e}")
-            return
-
-        # Si existe, lo leemos
-        try:
-            with open(self.archivo_materiales, "r") as f:
-                self.lista_materiales = json.load(f)
-        except json.JSONDecodeError:
-            QMessageBox.warning(self, "Error de Carga", "El archivo materiales.json está corrupto. Se creará uno nuevo al guardar.")
-            self.lista_materiales = []
+        usuario = self.parent().cargar_datos_usuario()
+        self.lista_materiales = usuario.get("materiales", [])
+        # Poblar ComboBox con materias
+        self.ui.comboBox_2.clear()
+        self.ui.comboBox_2.addItems([m["materia"] for m in self.lista_materiales])
 
     def agregar_material(self):
         """Añade el material a la lista en memoria (self.lista_materiales)"""
@@ -513,16 +522,11 @@ class VentanaAgendarLibros(QDialog):
 
 
     def guardar_y_cerrar(self):
-        """Guarda la lista completa de materiales en materiales.json y cierra."""
-        try:
-            with open(self.archivo_materiales, "w") as f:
-                json.dump(self.lista_materiales, f, indent=4)
-        except IOError as e:
-            QMessageBox.critical(self, "Error al Guardar", f"No se pudo escribir en el archivo materiales.json:\n{e}")
-            return # No cerrar si no se pudo guardar
-
+        usuario = self.parent().cargar_datos_usuario()
+        usuario["materiales"] = self.lista_materiales
+        self.parent().guardar_datos_usuario(usuario)
         QMessageBox.information(self, "Guardado", "Materiales guardados correctamente.")
-        self.accept() # Cierra el QDialog
+        self.accept()
 
 
 # -----------------------------
@@ -535,8 +539,11 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("Agenda Digital")
+        self.usuario_actual = None
+        self.habilitar_funciones(False)
 
         # Conectar botones a funciones
+        self.ui.pushButton_8.clicked.connect(self.abrir_registrarse)
         self.ui.pushButton_7.clicked.connect(self.abrir_iniciar_sesion)
         self.ui.pushButton_6.clicked.connect(self.abrir_mostrar_horario)
         self.ui.pushButton_4.clicked.connect(self.abrir_editar_horario)
@@ -546,6 +553,142 @@ class MainWindow(QMainWindow):
     # -------------------------
     # FUNCIONES DE APERTURA
     # -------------------------
+    @Slot()
+    def abrir_editar_horario(self):
+        ventana = VentanaEditarHorario(self)
+        ventana.exec()
+    @Slot()
+    def abrir_mostrar_horario(self):
+        ventana = VentanaMostrarHorario(self)
+        ventana.exec()
+    @Slot()
+    def abrir_agendar_tareas(self):
+        ventana = VentanaAgendarTarea(self)
+        ventana.exec()
+
+    @Slot()
+    def abrir_agendar_libros(self):
+        ventana = VentanaAgendarLibros(self)
+        ventana.exec()
+
+    def cargar_datos_usuario(self):
+        """Carga los datos completos del usuario actual desde horario.json"""
+        archivo_horario = os.path.join(os.path.dirname(__file__), "horario.json")
+        if not os.path.exists(archivo_horario):
+            return None
+
+        try:
+            with open(archivo_horario, "r", encoding="utf-8") as f:
+                usuarios = json.load(f)
+        except json.JSONDecodeError:
+            usuarios = []
+
+        for u in usuarios:
+            if u["nombre"] == self.usuario_actual["nombre"]:
+                # Aseguramos que existan las claves
+                u.setdefault("tareas", [])
+                u.setdefault("materiales", [])
+                u.setdefault("horarios", [])
+                return u
+
+        return None
+
+
+    def guardar_datos_usuario(self, datos_actualizados):
+        """Guarda los cambios del usuario actual dentro de horario.json"""
+        archivo_horario = os.path.join(os.path.dirname(__file__), "horario.json")
+        if os.path.exists(archivo_horario):
+            try:
+                with open(archivo_horario, "r", encoding="utf-8") as f:
+                    usuarios = json.load(f)
+            except json.JSONDecodeError:
+                usuarios = []
+        else:
+            usuarios = []
+
+        # Reemplazar usuario actual
+        for i, u in enumerate(usuarios):
+            if u["nombre"] == self.usuario_actual["nombre"]:
+                usuarios[i] = datos_actualizados
+                break
+        else:
+            # Este else pertenece al for: si no encontró, agrega
+            usuarios.append(datos_actualizados)
+
+        with open(archivo_horario, "w", encoding="utf-8") as f:
+            json.dump(usuarios, f, indent=4)
+
+    @Slot()
+    def mostrar_comunicado_recordatorios(self):
+        if not self.usuario_actual:
+            return  # No hay usuario logueado
+
+        # Cargar datos del usuario actual desde horario.json
+        datos_usuario = self.cargar_datos_usuario()
+        if not datos_usuario:
+            QMessageBox.information(self, "Recordatorio", "No hay datos para mostrar.")
+            return
+
+        tareas = datos_usuario.get("tareas", [])
+        materiales = datos_usuario.get("materiales", [])
+
+        texto = "📘 Recordatorio personal\n\n"
+
+        # Tareas
+        if tareas:
+            texto += "📚 Tareas y exámenes pendientes:\n"
+            for t in tareas:
+                estado = "✔ completada" if t.get("completada") else "❗ pendiente"
+                texto += f"- {t['materia']}: {t['descripcion']} — entrega: {t['fecha_entrega']} ({estado})\n"
+        else:
+            texto += "No hay tareas cargadas.\n"
+
+        texto += "\n"
+
+        # Materiales
+        if materiales:
+            texto += "🎒 Materiales cargados:\n"
+            for m in materiales:
+                estado = "✔ conseguido" if m.get("conseguido") else "❗ pendiente"
+                texto += f"- {m['materia']}: {m['material']} ({estado})\n"
+        else:
+            texto += "No hay materiales cargados.\n"
+
+        texto += "\n📆 Material necesario para mañana:\n"
+
+        # Materiales pendientes
+        materiales_manana = [m for m in materiales if not m.get("conseguido")]
+        if materiales_manana:
+            for m in materiales_manana:
+                texto += f"- Llevar {m['material']} para {m['materia']}\n"
+        else:
+            texto += "No necesitás llevar nada extra mañana.\n"
+
+        # Mostrar mensaje
+        msg = QMessageBox()
+        msg.setWindowTitle("Recordatorio")
+        msg.setText(texto)
+        msg.exec()
+
+
+ 
+    
+    def habilitar_funciones(self, estado):
+        self.ui.pushButton_6.setEnabled(estado)  # Mostrar horario
+        self.ui.pushButton_4.setEnabled(estado)  # Editar horario
+        self.ui.pushButton_3.setEnabled(estado)  # Agendar tarea/examen
+        self.ui.pushButton_5.setEnabled(estado)  # Agendar material
+    
+    @Slot()
+    def abrir_registrarse(self):
+        ventana = VentanaRegistrarse()
+        if ventana.exec():  # si inicia sesión correctamente
+            self.usuario_actual = ventana.usuario_actual
+            self.habilitar_funciones(True)
+            self.mostrar_comunicado_recordatorios()
+        else:
+            self.habilitar_funciones(False)
+    
     @Slot()
     def abrir_iniciar_sesion(self):
         ventana = VentanaIniciarSesion()
