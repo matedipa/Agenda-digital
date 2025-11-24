@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'registrarseBRaPyV.ui'
+## Form generated from reading UI file 'registrarseWavzad.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.3
 ##
@@ -64,7 +64,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
-        self.label.setText(QCoreApplication.translate("Form", u"Registrarse", None))
+        self.label.setText(QCoreApplication.translate("Form", u"Iniciar Sesion", None))
         self.label_3.setText(QCoreApplication.translate("Form", u"Seleccionar Usuario:", None))
         self.comboBox.setItemText(0, "")
         self.comboBox.setItemText(1, "")

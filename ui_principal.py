@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_windowaARnso.ui'
+## Form generated from reading UI file 'main_windowOaaqGR.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.3
 ##
@@ -63,7 +63,7 @@ class Ui_MainWindow(object):
         self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"Editar Horario", None))
         self.pushButton_5.setText(QCoreApplication.translate("MainWindow", u"Agendar Libros", None))
         self.pushButton_6.setText(QCoreApplication.translate("MainWindow", u"Mostrar Horario", None))
-        self.pushButton_7.setText(QCoreApplication.translate("MainWindow", u"Iniciar Sesion", None))
-        self.pushButton_8.setText(QCoreApplication.translate("MainWindow", u"Registrarse", None))
+        self.pushButton_7.setText(QCoreApplication.translate("MainWindow", u"Registrarse", None))
+        self.pushButton_8.setText(QCoreApplication.translate("MainWindow", u"Iniciar Sesion", None))
     # retranslateUi
 

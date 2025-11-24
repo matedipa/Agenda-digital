@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'iniciar-sesionYYgcpp.ui'
+## Form generated from reading UI file 'iniciar-sesionMJnaeF.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.3
 ##
@@ -67,7 +67,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
-        self.label.setText(QCoreApplication.translate("Form", u"Inicio Sesion", None))
+        self.label.setText(QCoreApplication.translate("Form", u"Registrarse", None))
         self.label_3.setText(QCoreApplication.translate("Form", u"Nombre:", None))
         self.label_4.setText(QCoreApplication.translate("Form", u"Gmail:", None))
         self.label_5.setText(QCoreApplication.translate("Form", u"Contrase\u00f1a:", None))
