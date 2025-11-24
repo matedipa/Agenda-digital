@@ -31,7 +31,7 @@
     <enum>Qt::LayoutDirection::LeftToRight</enum>
    </property>
    <property name="text">
-    <string>Inicio Sesion</string>
+    <string>Registrarse</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">

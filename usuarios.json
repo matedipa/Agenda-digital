@@ -3,18 +3,63 @@
         "nombre": "renzo",
         "gmail": "renzoaradas12",
         "contrasena": "1234",
-        "materiales": [],
-        "horarios": [],
+        "materiales": [
+            {
+                "materia": "historia",
+                "material": "Libro",
+                "conseguido": false
+            }
+        ],
+        "horarios": [
+            {
+                "dia": "Martes",
+                "materia": "historia",
+                "inicio": "09:00",
+                "fin": "10:00"
+            }
+        ],
         "tareas/examenes": [],
-        "tareas": [],
-        "materias": []
+        "tareas": [
+            {
+                "materia": "historia",
+                "descripcion": "Tarea",
+                "fecha_entrega": "2025-11-24",
+                "completada": false
+            }
+        ],
+        "materias": [
+            "historia"
+        ]
     },
     {
         "nombre": "Colo",
         "gmail": "colito.scar",
         "contrasena": "123456",
-        "tareas": [],
-        "materiales": [],
-        "horarios": []
+        "tareas": [
+            {
+                "materia": "Lengua",
+                "descripcion": "Prueba Lengua",
+                "fecha_entrega": "2025-12-30",
+                "completada": false
+            }
+        ],
+        "materiales": [
+            {
+                "materia": "Lengua",
+                "material": "Resumen",
+                "conseguido": false
+            }
+        ],
+        "horarios": [
+            {
+                "dia": "Lunes",
+                "materia": "Lengua",
+                "inicio": "09:00",
+                "fin": "11:00"
+            }
+        ],
+        "materias": [
+            "Lengua"
+        ]
     }
 ]
