@@ -13,6 +13,11 @@
                 "materia": "programacion",
                 "material": "Arduino",
                 "conseguido": false
+            },
+            {
+                "materia": "matematica",
+                "material": "Formulas y Calculadora",
+                "conseguido": false
             }
         ],
         "horarios": [
@@ -27,6 +32,24 @@
                 "materia": "programacion",
                 "inicio": "13:00",
                 "fin": "15:00"
+            },
+            {
+                "dia": "Jueves",
+                "materia": "matematica",
+                "inicio": "13:00",
+                "fin": "13:45"
+            },
+            {
+                "dia": "Lunes",
+                "materia": "lengua",
+                "inicio": "09:00",
+                "fin": "10:00"
+            },
+            {
+                "dia": "Viernes",
+                "materia": "fisica",
+                "inicio": "07:45",
+                "fin": "09:05"
             }
         ],
         "tareas/examenes": [],
@@ -42,11 +65,26 @@
                 "descripcion": "proyecto final",
                 "fecha_entrega": "2025-11-26",
                 "completada": false
+            },
+            {
+                "materia": "matematica",
+                "descripcion": "Prueba Funcion Cuadratica",
+                "fecha_entrega": "2025-11-27",
+                "completada": false
+            },
+            {
+                "materia": "fisica",
+                "descripcion": "carpeta fisica",
+                "fecha_entrega": "2025-11-28",
+                "completada": false
             }
         ],
         "materias": [
             "historia",
-            "programacion"
+            "programacion",
+            "matematica",
+            "lengua",
+            "fisica"
         ]
     },
     {

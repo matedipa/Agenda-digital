@@ -650,13 +650,30 @@ class MainWindow(QMainWindow):
         texto = "📘 Recordatorio personal\n\n"
 
         # Tareas
-        if tareas:
-            texto += "📚 Tareas y exámenes pendientes:\n"
-            for t in tareas:
-                estado = "✔ completada" if t.get("completada") else "❗ pendiente"
-                texto += f"- {t.get('materia')}: {t.get('descripcion')} — entrega: {t.get('fecha_entrega')} ({estado})\n"
+        mañana = date.today() + timedelta(days=1)
+        mañana_str = mañana.strftime("%Y-%m-%d")
+
+        tareas_manana = [t for t in tareas if t.get('fecha_entrega') == mañana_str]
+
+        if tareas_manana:
+            texto += "📚 Tareas para mañana:\n"
+            for t in tareas_manana:
+                texto += f"- {t['materia']}: {t['descripcion']} — entrega: {t['fecha_entrega']}\n"
         else:
-            texto += "No hay tareas cargadas.\n"
+            texto += "No tenés tareas para mañana.\n"
+        mañana = date.today() + timedelta(days=1)
+        dia_semana = mañana.strftime("%A")  # "Monday", "Tuesday", etc.
+
+        traduc = {
+            "Monday": "Lunes",
+            "Tuesday": "Martes",
+            "Wednesday": "Miercoles",
+            "Thursday": "Jueves",
+            "Friday": "Viernes"
+        }
+
+        dia_manana = traduc.get(dia_semana, None)
+        
 
         texto += "\n"
 
@@ -669,15 +686,25 @@ class MainWindow(QMainWindow):
         else:
             texto += "No hay materiales cargados.\n"
 
-        texto += "\n📆 Material necesario para mañana:\n"
-
         # Materiales pendientes
-        materiales_manana = [m for m in materiales if not m.get("conseguido")]
+        # Materias que tenés mañana
+        materias_manana = [
+            h["materia"]
+            for h in datos_usuario.get("horarios", [])
+            if h.get("dia") == dia_manana
+        ]
+
+        # Materiales para mañana
+        materiales_manana = [
+            m for m in materiales
+            if not m.get("conseguido") and m.get("materia") in materias_manana
+        ]
+        texto += "\n📆 Material necesario para mañana:\n"
         if materiales_manana:
             for m in materiales_manana:
-                texto += f"- Llevar {m.get('material')} para {m.get('materia')}\n"
+                texto += f"- Llevar {m['material']} para {m['materia']}\n"
         else:
-            texto += "No necesitás llevar nada extra mañana.\n"
+            texto += "No necesitás llevar nada mañana.\n"
 
         # Mostrar mensaje
         msg = QMessageBox()
