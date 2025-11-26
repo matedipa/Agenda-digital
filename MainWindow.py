@@ -673,18 +673,6 @@ class MainWindow(QMainWindow):
         }
 
         dia_manana = traduc.get(dia_semana, None)
-        
-
-        texto += "\n"
-
-        # Materiales
-        if materiales:
-            texto += "🎒 Materiales cargados:\n"
-            for m in materiales:
-                estado = "✔ conseguido" if m.get("conseguido") else "❗ pendiente"
-                texto += f"- {m.get('materia')}: {m.get('material')} ({estado})\n"
-        else:
-            texto += "No hay materiales cargados.\n"
 
         # Materiales pendientes
         # Materias que tenés mañana
