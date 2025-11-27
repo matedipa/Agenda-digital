@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from datetime import date, timedelta
 import sys
+import serial
+import time
 import os
 import json
 from PySide6.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
@@ -543,6 +545,12 @@ class VentanaAgendarLibros(QDialog):
 # -----------------------------
 class MainWindow(QMainWindow):
     def __init__(self):
+        try:
+            self.arduino = serial.Serial("COM3", 9600, timeout=0.1)
+        except:
+            self.arduino = None
+        QMessageBox.warning(self, "Arduino", "No se pudo conectar al Arduino.")
+
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -557,14 +565,34 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_4.clicked.connect(self.abrir_editar_horario)
         self.ui.pushButton_3.clicked.connect(self.abrir_agendar_tareas)
         self.ui.pushButton_5.clicked.connect(self.abrir_agendar_libros)
+    def esperar_habilitacion_arduino(self):
+        if not self.arduino:
+            QMessageBox.warning(self, "Arduino", "Arduino no conectado.")
+            return False
+
+        QMessageBox.information(self, "Esperando", "Presioná el botón en Arduino para continuar...")
+
+        while True:
+            try:
+                dato = self.arduino.readline().decode().strip()
+                if dato == "1":
+                    return True
+            except:
+                pass
+            QApplication.processEvents()   # evita que la app se congele
+            time.sleep(0.05)
 
     # -------------------------
     # FUNCIONES DE APERTURA
     # -------------------------
     @Slot()
     def abrir_editar_horario(self):
+        if not self.esperar_habilitacion_arduino():
+            return
         ventana = VentanaEditarHorario(self)
         ventana.exec()
+    # al cerrar, se bloquea automáticamente porque Arduino no vuelve a mandar "1"
+
 
     @Slot()
     def abrir_mostrar_horario(self):
@@ -573,13 +601,19 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def abrir_agendar_tareas(self):
+        if not self.esperar_habilitacion_arduino():
+            return
         ventana = VentanaAgendarTarea(self)
         ventana.exec()
 
+
     @Slot()
     def abrir_agendar_libros(self):
+        if not self.esperar_habilitacion_arduino():
+            return
         ventana = VentanaAgendarLibros(self)
         ventana.exec()
+
 
     def cargar_datos_usuario(self):
         """Carga los datos completos del usuario actual desde usuarios.json"""
