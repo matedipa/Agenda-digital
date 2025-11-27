@@ -18,6 +18,11 @@
                 "materia": "matematica",
                 "material": "Formulas y Calculadora",
                 "conseguido": false
+            },
+            {
+                "materia": "fisica",
+                "material": "libro",
+                "conseguido": false
             }
         ],
         "horarios": [
