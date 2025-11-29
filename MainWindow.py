@@ -565,7 +565,7 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_7.clicked.connect(self.abrir_iniciar_sesion)
         
         # MODIFICADO: Ahora conectan a las funciones PROTEGIDAS
-        self.ui.pushButton_6.clicked.connect(lambda: self.abrir_ventana_protegida(self.abrir_mostrar_horario))
+        self.ui.pushButton_6.clicked.connect(self.abrir_mostrar_horario)
         self.ui.pushButton_4.clicked.connect(lambda: self.abrir_ventana_protegida(self.abrir_editar_horario))
         self.ui.pushButton_3.clicked.connect(lambda: self.abrir_ventana_protegida(self.abrir_agendar_tareas))
         self.ui.pushButton_5.clicked.connect(lambda: self.abrir_ventana_protegida(self.abrir_agendar_libros))

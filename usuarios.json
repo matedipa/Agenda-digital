@@ -55,6 +55,12 @@
                 "materia": "fisica",
                 "inicio": "07:45",
                 "fin": "09:05"
+            },
+            {
+                "dia": "Jueves",
+                "materia": "Logica matematica",
+                "inicio": "07:45",
+                "fin": "10:45"
             }
         ],
         "tareas/examenes": [],
@@ -89,7 +95,8 @@
             "programacion",
             "matematica",
             "lengua",
-            "fisica"
+            "fisica",
+            "Logica matematica"
         ]
     },
     {
