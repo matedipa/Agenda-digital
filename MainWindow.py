@@ -2,6 +2,11 @@
 from datetime import date, timedelta
 import sys
 import os
+import serial
+import serial.tools.list_ports
+import time
+from PySide6.QtWidgets import QProgressDialog
+from PySide6.QtCore import Qt
 import json
 from PySide6.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
                               QLineEdit, QTableWidget, QTableWidgetItem, QVBoxLayout)
@@ -550,13 +555,101 @@ class MainWindow(QMainWindow):
         self.usuario_actual = None
         self.habilitar_funciones(False)
 
+        # --- CONEXIÓN ARDUINO ---
+        self.arduino = None
+        self.conectar_arduino()
+        # ------------------------
+
         # Conectar botones a funciones (pasamos self como parent donde corresponda)
         self.ui.pushButton_8.clicked.connect(self.abrir_registrarse)
         self.ui.pushButton_7.clicked.connect(self.abrir_iniciar_sesion)
-        self.ui.pushButton_6.clicked.connect(self.abrir_mostrar_horario)
-        self.ui.pushButton_4.clicked.connect(self.abrir_editar_horario)
-        self.ui.pushButton_3.clicked.connect(self.abrir_agendar_tareas)
-        self.ui.pushButton_5.clicked.connect(self.abrir_agendar_libros)
+        
+        # MODIFICADO: Ahora conectan a las funciones PROTEGIDAS
+        self.ui.pushButton_6.clicked.connect(lambda: self.abrir_ventana_protegida(self.abrir_mostrar_horario))
+        self.ui.pushButton_4.clicked.connect(lambda: self.abrir_ventana_protegida(self.abrir_editar_horario))
+        self.ui.pushButton_3.clicked.connect(lambda: self.abrir_ventana_protegida(self.abrir_agendar_tareas))
+        self.ui.pushButton_5.clicked.connect(lambda: self.abrir_ventana_protegida(self.abrir_agendar_libros))
+
+    def conectar_arduino(self):
+        """Intenta conectar automáticamente con el Arduino"""
+        try:
+            # Busca puertos disponibles
+            puertos = serial.tools.list_ports.comports()
+            for puerto in puertos:
+                # Ajusta esto si tu Arduino tiene otro nombre, pero suele detectar USB
+                if "Arduino" in puerto.description or "CH340" in puerto.description or "USB" in puerto.description:
+                    self.arduino = serial.Serial(puerto.device, 9600, timeout=0.1)
+                    time.sleep(2) # Esperar a que resetee el Arduino
+                    print(f"Conectado a {puerto.device}")
+                    break
+            
+            if not self.arduino:
+                print("No se encontró Arduino. Funcionará en modo simulación (o fallará si es estricto).")
+        except Exception as e:
+            print(f"Error al conectar Arduino: {e}")
+
+    def abrir_ventana_protegida(self, funcion_abrir_ventana):
+        """
+        Esta función bloquea el acceso hasta que Arduino da el OK.
+        """
+        # 1. Verificar si hay usuario (lógica original)
+        if not self.usuario_actual:
+            QMessageBox.warning(self, "Error", "Debes iniciar sesión primero para cargar tus datos.")
+            return
+
+        # 2. Si no hay arduino conectado, avisamos (o dejamos pasar si es test)
+        if not self.arduino:
+            QMessageBox.warning(self, "Error de Hardware", "Arduino no detectado. Revisa la conexión USB.")
+            return
+
+        # 3. Enviar señal de BLOQUEO al Arduino (para que muestre 'No tienes acceso')
+        try:
+            self.arduino.write(b'B') # 'B' de Bloqueado
+        except:
+            pass
+
+        # 4. Crear un diálogo modal que dice "Esperando acceso..."
+        dialogo = QProgressDialog("Esperando acceso del Arduino...\nPresiona el botón físico.", "Cancelar", 0, 0, self)
+        dialogo.setWindowTitle("Acceso Bloqueado")
+        dialogo.setWindowModality(Qt.WindowModal)
+        dialogo.setCancelButton(None) # Ocultar botón cancelar para obligar a usar Arduino
+        dialogo.show()
+
+        acceso_concedido = False
+
+        # 5. Bucle de espera (Polling)
+        while dialogo.isVisible():
+            QApplication.processEvents() # Mantiene la interfaz viva
+            
+            try:
+                if self.arduino.in_waiting > 0:
+                    linea = self.arduino.readline().decode().strip()
+                    if linea == "1":
+                        acceso_concedido = True
+                        dialogo.close()
+                        break
+            except Exception as e:
+                print(f"Error leyendo Arduino: {e}")
+                break
+        
+        # 6. Si se concedió acceso, abrimos la ventana
+        if acceso_concedido:
+            # Ejecutamos la función original (ej: abrir_mostrar_horario)
+            funcion_abrir_ventana()
+            
+            # AL CERRAR LA VENTANA (cuando funcion_abrir_ventana termine su .exec())
+            # Enviamos señal para volver a poner "No tienes acceso" en el LCD
+            try:
+                self.arduino.write(b'L') # 'L' para resetear mensaje a bloqueado
+            except:
+                pass
+        else:
+            # Si cerraron el diálogo o falló
+            try:
+                self.arduino.write(b'L')
+            except:
+                pass
+
 
     # -------------------------
     # FUNCIONES DE APERTURA
