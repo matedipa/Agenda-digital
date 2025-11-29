@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -- coding: utf-8 --
 
 ################################################################################
 ## Form generated from reading UI file 'main_windowgJiSkg.ui'
@@ -98,6 +98,24 @@ class Ui_MainWindow(object):
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
+        # ----- ESTILOS PERSONALIZADOS -----
+        MainWindow.setStyleSheet("""
+            QMainWindow {
+                background-color: #6FA8DC;   /* Celeste */
+            }
+
+            QLabel#label {
+                color: #2B2B2B;
+                font-family: 'Segoe UI';
+                font-size: 27pt;
+            }
+
+            QPushButton {
+                font-family: 'Segoe UI';
+                font-size: 12pt;          /* Un poco más grande */
+            }
+        """)
+
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
@@ -109,4 +127,3 @@ class Ui_MainWindow(object):
         self.pushButton_8.setText(QCoreApplication.translate("MainWindow", u"Iniciar Sesion", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Agenda Digital", None))
     # retranslateUi
-

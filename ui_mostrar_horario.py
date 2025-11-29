@@ -44,6 +44,29 @@ class Ui_Form(object):
         self.retranslateUi(Form)
 
         QMetaObject.connectSlotsByName(Form)
+                # -------------------------------
+        # ESTILO PERSONALIZADO (CELESTE)
+        # -------------------------------
+        Form.setStyleSheet("""
+            QWidget {
+                background-color: #5DBCD2;   /* Celeste marino */
+                color: #2B2B2B;
+                font-family: 'Segoe UI';
+            }
+
+            QLabel#label {
+                font-size: 27pt;
+                color: #2B2B2B;                /* Igual que otros títulos */
+            }
+
+            QTableWidget {
+                background-color: white;
+                color: black;
+                gridline-color: #5DBCD2;
+                font-size: 12pt;
+            }
+        """)
+
     # setupUi
 
     def retranslateUi(self, Form):
